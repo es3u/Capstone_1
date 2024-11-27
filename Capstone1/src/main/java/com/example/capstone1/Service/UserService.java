@@ -11,7 +11,7 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    ArrayList<Product> getBuy = new ArrayList<>();
+
     ArrayList<User> users = new ArrayList<>();
     private final MerchantService merchant;
     private final ProductService product;
@@ -79,13 +79,13 @@ public class UserService {
             }
         }
 
-        for (Product p : product.products) {
-            if(!p.getProductId().equals(productId)) {
+        for (MerchantStock p : merchantStock.merchantStocks) {
+            if(!p.getProductId().equals(productId)){
                 return 1;
             }
         }
 
-        for (Merchant m : merchant.merchants) {
+        for (MerchantStock m : merchantStock.merchantStocks) {
             if (!m.getMerchantId().equals(merchantId)) {
                 return 2;
             }
@@ -102,7 +102,7 @@ public class UserService {
                 if(p.getProductId().equals(productId)) {
                     if(u.getBalance() >= p.getProductPrice()){
                         u.setBalance(u.getBalance()-p.getProductPrice());
-                        getBuy.add(p);
+                        u.setbuy(p);
                     }else return 4;
                 }
              }
@@ -116,19 +116,9 @@ public class UserService {
 
 
 
-
-
-
-
-
-
-
-
 //////1
         public ArrayList<Product> getBuyProduct(String userId,String productName ) {
-                ArrayList<Product> products = new ArrayList<>();
-
-
+                ArrayList  products = new ArrayList();
               for (Product p : product.products) {
                   if (!p.getProductName().equals(productName)) {
                       for (User u : users) {
@@ -139,12 +129,12 @@ public class UserService {
 
                   }
               }
-
             for(User u : users) {
                 if (u.getUserID().equals(userId)) {
-                    for ( Product p: getBuy) {
+                    for ( Product p : u.getGetBuy()) {
                         if(p.getProductName().equals(productName)){
-                            products.add(p);
+                            u.setbuy(p);
+                            products.add(u.getGetBuy());
                         }
 
                     }
@@ -158,37 +148,36 @@ public class UserService {
 /////////2
         public ArrayList<Product> getRangPriceCategory(String categoryId,int p1 , int p2 ) {
 
-        ArrayList<Product> products = new ArrayList<>();
-        for(Product p : product.products ) {
-            if(!p.getCategoryId().equals(categoryId)) {
-               return null;
+            ArrayList<Product> products = new ArrayList<>();
+
+            if (p1 < 0 && p2 < 0 && p1 < p2) {
+                return null;
             }
-          }
-        if (p1 < 0 && p2 <0 && p1<p2){
-            return null;
+
+
+            for (Product p : product.products) {
+                if (p.getCategoryId().equals(categoryId)) {
+                    for (Product p3 : product.products) {
+                        if (p1 >= p3.getProductPrice() || p2 <= p3.getProductPrice()) {
+                            products.add(p);
+                        }return null;
+
+                    }return null;
+
+                }
+
+                return null;
+            }
+
+
+            return products;
         }
 
-        for (Product p : product.products) {
-            if(p1>=p.getProductPrice() || p2<=p.getProductPrice()){
-                products.add(p);
-            }
-        }
-        return products;
 
-        }
 
 /////////3
-        public String ReturnProduct(String userAdmin ,String userCustomer,  String productId , String merchantId){
-            int stock = 0 ;
+        public String ReturnProduct(String userCustomer,  String productId , String merchantId){
             double price = 0;
-            for(User u : users) {
-            if (u.getUserID().equals(userAdmin)) {
-                if(!userAdmin.equals("Admin")) {
-                    return "You do not have permission to edit.";
-                }
-            }else
-                return "id admin isn't found";
-        }
 
         for(User u : users) {
             if (u.getUserID().equals(userCustomer)) {
@@ -198,18 +187,16 @@ public class UserService {
             }else
                 return "id customer isn't found";
         }
-
        for(Product p : product.products) {
            if(!p.getProductId().equals(productId)) {
                return "Product id isn't found";
            }
-          price = p.getProductPrice();
+           price =p.getProductPrice();
        }
        for(MerchantStock m : merchantStock.merchantStocks) {
            if(!m.getMerchantId().equals(merchantId)) {
                return "Merchant id isn't found";
            }
-           stock = m.getStock();
        }
 
        for(User u : users) {
@@ -220,7 +207,7 @@ public class UserService {
 
        for(MerchantStock m : merchantStock.merchantStocks) {
            if(m.getMerchantId().equals(merchantId)) {
-               m.setStock(m.getStock()+stock);
+               m.setStock(m.getStock()+ 1);
            }
        }
 
@@ -231,7 +218,7 @@ public class UserService {
         ///////4
 
     public ArrayList<Product> Favorites(String userId , String productId ) {
-        ArrayList<Product> products = new ArrayList<>();
+       ArrayList products = new ArrayList<>();
         for(User u : users) {
             if (!u.getUserID().equals(userId)) {
                 for (Product p : product.products) {
@@ -242,38 +229,61 @@ public class UserService {
 
             }
         }
-        for(Product p : product.products) {
-            if(p.getProductId().equals(productId)) {
-                products.add(p);
+        for(User u : users) {
+            for(Product p : product.products) {
+                if(p.getProductId().equals(productId)) {
+                   u.setproducts(p);
+                   products.add(u.getProducts());
+                }
             }
         }
+
         return products;
     }
 
 
     ////////////5
+        public String generateRating(String productId) {
+        String star = "";
+        String a = "*";
+        int count = 0;
 
+//        for(User u : users) {
+//            if (!u.getUserID().equals(userId)) {
+//                return "user id isn't found";
+//            }
+//        }
+//
+//        for (Product p : product.products) {
+//            if (!p.getProductId().equals(productId)) {
+//                return "product id isn't found";
+//            }
+//        }
 
+        for (User u : users ) {
+             {
+                for (Product p : product.products) {
+                    if (p.getProductId().equals(productId)) {
+                        if(u.getGetBuy().equals(p)) {
+                            count++;
+                        }
 
-
-        public String generateRating(String userId, String productId) {
-        Random random = new Random();
-
-        for(User u : users) {
-            if (!u.getUserID().equals(userId)) {
-                return "user id isn't found";
+                    }
+                }
             }
         }
-
-        for (Product p : product.products) {
-            if (!p.getProductId().equals(productId)) {
-                return "product id isn't found";
+        if (count >= 5) {
+            for (int i = 0; i < 5; i++) {
+                star = star + a;
             }
-        }
-
-            int rating = random.nextInt(5) + 1;
-            String star = "*".repeat(rating);
+        }else
+            if(count>1){
+                for (int i = 0; i < 3; i++) {
+                    star = star + a;
+                }
+            }
             return star;
+
         }
 
 

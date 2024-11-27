@@ -43,23 +43,23 @@ public class UserController{
         return ResponseEntity.ok().body("delete user failed");
     }
 
-    @PostMapping("/buy/{userId}/{productId}/{merchantId}/")
+    @PostMapping("/buy/{userId}/{productId}/{merchantId}")
     public ResponseEntity buy(@PathVariable String userId ,@PathVariable String productId ,@PathVariable String merchantId ){
         int result = userService.buy(userId ,productId ,merchantId );
         if(result == 0){
-            return ResponseEntity.ok().body("user id is not found");
+            return ResponseEntity.badRequest().body("user id is not found");
         }
         if(result == 1){
-            return ResponseEntity.ok().body("product id is not found");
+            return ResponseEntity.badRequest().body("product id is not found");
         }
         if(result == 2){
-            return ResponseEntity.ok().body("merchant id is not found");
+            return ResponseEntity.badRequest().body("merchant id is not found");
         }
         if(result == 3){
-            return ResponseEntity.ok().body("merchant Stock id is not found");
+            return ResponseEntity.badRequest().body("merchant Stock id is not found");
         }
         if(result == 4){
-            return ResponseEntity.ok().body("the product price is more than in your balance ");
+            return ResponseEntity.badRequest().body("the product price is more than in your balance ");
         }
 
         return ResponseEntity.ok().body("buy is successfully");
@@ -82,9 +82,9 @@ public class UserController{
         return ResponseEntity.ok().body(userService.getRangPriceCategory(categoryId ,p1 ,p2));
     }
 
-    @PutMapping("/ReturnProduct/{userAdmin}/{userCustomer}/{productId}/{merchantId}")
-    public ResponseEntity ReturnProduct(@PathVariable String userAdmin ,@PathVariable String userCustomer, @PathVariable String productId , @PathVariable String merchantId){
-      String message =   userService.ReturnProduct(userAdmin ,userCustomer ,productId ,merchantId);
+    @PutMapping("/ReturnProduct//{userCustomer}/{productId}/{merchantId}")
+    public ResponseEntity ReturnProduct(@PathVariable String userCustomer, @PathVariable String productId , @PathVariable String merchantId){
+      String message =   userService.ReturnProduct(userCustomer ,productId ,merchantId);
         return ResponseEntity.ok().body(message);
     }
 
@@ -97,9 +97,9 @@ public class UserController{
         return ResponseEntity.ok().body(userService.Favorites(userId ,productId));
     }
 
-    @GetMapping("/generateRating/{userId}/{productId}")
+    @GetMapping("/generateRating/{productId}")
     public ResponseEntity generateRating(@PathVariable String userId,@PathVariable String productId){
-        return ResponseEntity.ok().body(userService.generateRating(userId ,productId));
+        return ResponseEntity.ok().body(userService.generateRating(productId));
     }
 
 
